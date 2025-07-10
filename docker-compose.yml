@@ -55,7 +55,7 @@ services:
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
 
   symmetricds:
-    image: symmetricds/symmetricds:latest
+    image: jumpmind/symmetricds:latest
     container_name: symmetricds
     hostname: symmetricds
     volumes:
