@@ -1,5 +1,3 @@
-# finsegur-project/api/Dockerfile
-
 # Usar una imagen oficial de Node.js como base. Alpine es una versión ligera.
 FROM node:18-alpine
 
