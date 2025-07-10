@@ -1,0 +1,99 @@
+# finsegur-project/docker-compose.yml
+version: "3.8"
+
+services:
+  pg-master:
+    image: postgres:15
+    container_name: pg-master
+    hostname: pg-master
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=adminpass
+      - POSTGRES_DB=finanzas
+    volumes:
+      - ./pg-master/conf/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./pg-master/conf/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./pg-master/init:/docker-entrypoint-initdb.d
+      - pg-master-data:/var/lib/postgresql/data
+    networks:
+      finsegur-net:
+        ipv4_address: 172.25.0.10
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+
+  pg-trans:
+    image: postgres:15
+    container_name: pg-trans
+    hostname: pg-trans
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=adminpass
+      - POSTGRES_DB=finanzas
+    volumes:
+      - ./pg-trans/conf/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./pg-trans/conf/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - pg-trans-data:/var/lib/postgresql/data
+    networks:
+      finsegur-net:
+        ipv4_address: 172.25.0.11
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+
+  pg-readonly:
+    image: postgres:15
+    container_name: pg-readonly
+    hostname: pg-readonly
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=adminpass
+      - POSTGRES_DB=finanzas
+    volumes:
+      - ./pg-readonly/conf/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./pg-readonly/conf/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - pg-readonly-data:/var/lib/postgresql/data
+    networks:
+      finsegur-net:
+        ipv4_address: 172.25.0.12
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+
+  symmetricds:
+    image: symmetricds/symmetricds:latest
+    container_name: symmetricds
+    hostname: symmetricds
+    volumes:
+      - ./symmetric-ds/engines:/opt/symmetric-ds/engines
+      - ./symmetric-ds/config:/opt/symmetric-ds/config
+    networks:
+      finsegur-net:
+        ipv4_address: 172.25.0.20
+    depends_on:
+      - pg-master
+      - pg-trans
+      - pg-readonly
+
+  backend:
+    build: ./api
+    container_name: backend-api
+    hostname: backend-api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - ./api/.env
+    networks:
+      finsegur-net:
+        ipv4_address: 172.25.0.30
+    depends_on:
+      - pg-master
+      - pg-readonly
+
+networks:
+  finsegur-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+volumes:
+  pg-master-data:
+  pg-trans-data:
+  pg-readonly-data:
