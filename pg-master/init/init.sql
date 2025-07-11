@@ -52,6 +52,7 @@ CREATE USER replica_trans WITH PASSWORD 'transpass';
 GRANT CONNECT ON DATABASE finanzas TO replica_trans;
 GRANT USAGE ON SCHEMA public TO replica_trans;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO replica_trans;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO replica_trans;
 
 -- Usuario para lectura (usado por el backend y la replicación hacia pg-readonly)
 CREATE USER replica_read WITH PASSWORD 'readpass';

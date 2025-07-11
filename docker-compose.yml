@@ -31,6 +31,7 @@ services:
     volumes:
       - ./pg-trans/conf/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./pg-trans/conf/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./common-init:/docker-entrypoint-initdb.d 
       - pg-trans-data:/var/lib/postgresql/data
     networks:
       finsegur-net:
@@ -48,6 +49,7 @@ services:
     volumes:
       - ./pg-readonly/conf/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./pg-readonly/conf/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./common-init:/docker-entrypoint-initdb.d 
       - pg-readonly-data:/var/lib/postgresql/data
     networks:
       finsegur-net:
